@@ -1,6 +1,6 @@
 {
   "name": "use-viewport-sizes",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "tiny React hook which allows you to track visible window viewport size in your components w/ an optional debounce for updates for optimal rendering.",
   "main": "build/index.js",
   "scripts": {
