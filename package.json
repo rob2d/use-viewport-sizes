@@ -1,0 +1,42 @@
+{
+  "name": "use-viewport-sizes",
+  "version": "0.1.7",
+  "description": "tiny React hook which allows you to track visible window viewport size in your components w/ an optional debounce for updates for optimal rendering.",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack",
+    "dev": "webpack-dev-server --env testServer --mode development --open"
+  },
+  "dependencies": {
+    "react": "^16.8.6",
+    "webpack": "^4.30.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "webpack-cli": "^3.3.0"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "window",
+    "resize",
+    "viewport",
+    "sizes",
+    "dimensions"
+  ],
+  "author": "Robert Concepcion III",
+  "repository": "github:rob2d/use-viewport-sizes",
+  "license": "MIT",
+    "files": [
+    "build/",
+	"README.md"
+  ]
+}
