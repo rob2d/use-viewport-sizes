@@ -6,6 +6,8 @@ import { useState, useEffect, useMemo } from "react"
 
 var { documentElement } = window.document;
 
+let something;
+
 function getVpWidth () {
     return Math.max(
         documentElement.clientWidth, 
