@@ -1,40 +1,57 @@
 import { useState, useEffect, useMemo } from "react"
 
-const getVpWidth = () =>
-    Math.max(
-      window.document.documentElement.clientWidth, 
-      window.innerWidth || 0
-    );
+// Note: not using pure ES6/7 as babel
+// transpilation eats into precious
+// bytes and we're being petty here 🙂
 
-const getVpHeight = () =>
-    Math.max(
-        window.document.documentElement.clientHeight,
+var { documentElement } = window.document;
+
+function getVpWidth () {
+    return Math.max(
+        documentElement.clientWidth, 
+        window.innerWidth || 0
+      );
+}
+    
+
+function getVpHeight () {
+    return Math.max(
+        documentElement.clientHeight,
         window.innerHeight || 0
     );
+}
 
-const store = {
-  listeners: new Set(),
-  state: { vpWidth: getVpWidth(), vpHeight: getVpHeight() },
-  onResize(vpWidth, vpHeight) {
-    this.state = { vpWidth, vpHeight };
-    
-    for(let listener of this.listeners) {
+// =============== //
+//  Shared State   //
+// =============== //
+
+var listeners = new Set();
+var vpW = getVpWidth();
+var vpH = getVpHeight();
+
+function onResize(vpWidth, vpHeight) {
+    listeners.forEach(function(listener) {
         listener({ vpWidth, vpHeight });
-    }
-  }
-};
+    });
+}
 
-window.addEventListener("resize", () => {
-  store.onResize(getVpWidth(), getVpHeight());
+window.addEventListener('resize',function(){
+    vpW = getVpWidth();
+    vpH = getVpHeight();
+    onResize(vpW, vpH);
 });
+
+// =============== //
+//    the Hook     //
+// =============== //
 
 function useViewportSizes(debounce) {
     const [{ vpWidth, vpHeight }, setState] = useState(() => ({ 
-        ...store.state
+        vpWidth : vpW, vpHeight : vpH
     }));
 
     const listener = useMemo(()=> {
-        store.listeners.delete(listener);
+        listeners.delete(listener);
 
         let interval = undefined;
 
@@ -52,7 +69,6 @@ function useViewportSizes(debounce) {
     }, [debounce, setState]);
 
     useEffect(() => {
-        const { listeners } = store;
         listeners.add(listener);
         return () => listeners.delete(listener);
     }, []);
