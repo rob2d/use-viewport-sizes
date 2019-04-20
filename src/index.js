@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useLayoutEffect, useMemo } from "react"
 
 // Note: not using pure ES6/7 as babel
 // transpilation eats into precious
