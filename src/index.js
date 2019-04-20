@@ -6,48 +6,62 @@ import { useState, useEffect, useMemo } from "react"
 
 var { documentElement } = window.document;
 
-let something;
-
 function getVpWidth () {
-    return Math.max(
+    return (typeof window != 'undefined') ? Math.max(
         documentElement.clientWidth, 
         window.innerWidth || 0
-      );
+      ) : 0;
 }
     
 
 function getVpHeight () {
-    return Math.max(
+    return (typeof window != 'undefined') ? Math.max(
         documentElement.clientHeight,
         window.innerHeight || 0
-    );
+    ) : 0;
 }
 
 // =============== //
 //  Shared State   //
 // =============== //
 
-var listeners = new Set();
-var vpW = getVpWidth();
-var vpH = getVpHeight();
+// using separate variables since Babel
+// transpilation saves a bit of filesize
 
-function onResize(vpWidth, vpHeight) {
+var listeners = new Set();
+var vpW = 0;
+var vpH = 0;
+
+let hasListenerBeenAttached = false;
+
+
+// should only be called by *one* component once; 
+// will iterate through all subscribers
+// afterwards
+
+function onResize() {
+    let vpWidth = getVpWidth();
+    let vpHeight = getVpHeight();
     listeners.forEach(function(listener) {
         listener({ vpWidth, vpHeight });
     });
 }
 
-window.addEventListener('resize',function(){
-    vpW = getVpWidth();
-    vpH = getVpHeight();
-    onResize(vpW, vpH);
-});
+
 
 // =============== //
 //    the Hook     //
 // =============== //
 
 function useViewportSizes(debounce) {
+    useLayoutEffect(()=> {
+        if(window && !hasListenerBeenAttached) {
+            hasListenerBeenAttached = true;
+            window.addEventListener('resize', onResize);        
+            onResize();
+        }
+    }, []);
+
     const [{ vpWidth, vpHeight }, setState] = useState(() => ({ 
         vpWidth : vpW, vpHeight : vpH
     }));
@@ -75,7 +89,7 @@ function useViewportSizes(debounce) {
         return () => listeners.delete(listener);
     }, []);
 
-    return [vpWidth, vpHeight];
+    return [vpWidth, vpHeight, onResize];
 }
 
 export default useViewportSizes
