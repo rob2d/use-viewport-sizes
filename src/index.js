@@ -1,14 +1,8 @@
-import { useState, useEffect, useLayoutEffect, useMemo } from "react"
-
-// Note: not using pure ES6/7 as babel
-// transpilation eats into precious
-// bytes and we're being petty here 🙂
-
-var { documentElement } = window.document;
+import { useState, useRef, useLayoutEffect, useMemo } from "react"
 
 function getVpWidth () {
     return (typeof window != 'undefined') ? Math.max(
-        documentElement.clientWidth, 
+        window.document.documentElement.clientWidth, 
         window.innerWidth || 0
       ) : 0;
 }
@@ -16,7 +10,7 @@ function getVpWidth () {
 
 function getVpHeight () {
     return (typeof window != 'undefined') ? Math.max(
-        documentElement.clientHeight,
+        window.document.documentElement.clientHeight,
         window.innerHeight || 0
     ) : 0;
 }
@@ -29,64 +23,61 @@ function getVpHeight () {
 // transpilation saves a bit of filesize
 
 var listeners = new Set();
-var vpW = 0;
-var vpH = 0;
-
-let hasListenerBeenAttached = false;
-
+var vpW = getVpWidth();
+var vpH = getVpHeight();
 
 // should only be called by *one* component once; 
 // will iterate through all subscribers
 // afterwards
 
 function onResize() {
-    let vpWidth = getVpWidth();
-    let vpHeight = getVpHeight();
+    vpW = getVpWidth();
+    vpH = getVpHeight();
+    
     listeners.forEach(function(listener) {
-        listener({ vpWidth, vpHeight });
+        listener({ vpWidth : vpW, vpHeight : vpH });
     });
 }
-
-
 
 // =============== //
 //    the Hook     //
 // =============== //
 
 function useViewportSizes(debounce) {
+    const [{ vpWidth, vpHeight }, setState] = useState(()=> ({
+        vpWidth : vpW, 
+        vpHeight : vpH
+    }));
+    const timeout = useRef(undefined);
+    const listener = useMemo(()=> (!debounce ?
+        state => setState(state) : 
+        state => {
+            if(timeout.current) {
+                clearTimeout(timeout.current);
+            }
+            timeout.current = setTimeout(()=> 
+                setState(state), debounce
+            );
+        }
+    ), [debounce, setState]);
+    
     useLayoutEffect(()=> {
-        if(window && !hasListenerBeenAttached) {
-            hasListenerBeenAttached = true;
+        listeners.add(listener);
+
+        if(window && listeners.size == 1) {
             window.addEventListener('resize', onResize);        
             onResize();
         }
-    }, []);
 
-    const [{ vpWidth, vpHeight }, setState] = useState(() => ({ 
-        vpWidth : vpW, vpHeight : vpH
-    }));
+        // clean up listeners on unmount
 
-    const listener = useMemo(()=> {
-        listeners.delete(listener);
+        return () => {
+            listeners.delete(listener);
 
-        let interval = undefined;
-
-        return !debounce ?
-            state => setState({ ...state }) : 
-            state => {
-                if(interval) {
-                    clearTimeout(interval);
-                }
-                interval = setTimeout(()=> 
-                    setState({ ...state }), 
-                    debounce
-                );
-            };
-    }, [debounce, setState]);
-
-    useEffect(() => {
-        listeners.add(listener);
-        return () => listeners.delete(listener);
+            if(listeners.size == 0) {
+                window.removeEventListener('resize', onResize);
+            }
+        };
     }, []);
 
     return [vpWidth, vpHeight, onResize];
