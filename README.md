@@ -20,8 +20,14 @@ npm install -D use-viewport-sizes
 ## Usage ##
 
 ### **See it in Action** ###
-*for an illustration of the concept, check out a CodeSandox* @
+
+<center>
+<img src="./doc/use-viewport-sizes.gif" />
+
+*Interact with the example shown on CodeSandox* @
 [https://codesandbox.io/s/j3vzpqxwww](https://codesandbox.io/s/j3vzpqxwww)
+
+</center>
 
 ### **Without Debouncing**
 *registers dimension changes on every resize event immediately*
