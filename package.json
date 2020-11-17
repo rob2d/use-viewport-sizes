@@ -1,6 +1,6 @@
 {
   "name": "use-viewport-sizes",
-  "version": "0.2.7",
+  "version": "0.2.8-beta.9",
   "description": "tiny React hook for tracking visible window viewport size in your components w/ an optional debounce for optimal rendering.",
   "main": "build/index.js",
   "scripts": {
@@ -32,8 +32,8 @@
   "author": "Robert Concepcion III",
   "repository": "github:rob2d/use-viewport-sizes",
   "license": "MIT",
-    "files": [
+  "files": [
     "build/",
-	"README.md"
+    "README.md"
   ]
 }
