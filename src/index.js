@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useCallback } from 'react';
+import { useState, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 
 function getVpWidth () {
     return (typeof window != 'undefined') ? Math.max(
@@ -53,12 +53,12 @@ function onResize() {
 
     listeners.forEach(function(listener) {
         const params = { vpW: vpWidth, vpH: vpHeight };
-        if(resolvers.has(listener)) {
+
+        if(!resolverMap.has(listener)) {
             listener(params);
         }
         else {
-            const resolverParams = resolverMap.get(listener);
-            const { hasher, prevHash } = resolverParams;
+            const { hasher, prevHash } = resolverMap.get(listener);
             const hash = hasher(params);
 
             if(hash != prevHash) {
@@ -87,17 +87,22 @@ function onResize() {
 function useViewportSizes(input) {
     const hasCustomHasher = (typeof input == 'function');
     const [state, setState] = useState(()=> !hasCustomHasher ?
-        ({ vpW: vpWidth, vpH: vpHeight }) : input({ vpWidth, vpHeight })
+        ({ vpW: vpWidth, vpH: vpHeight }) :
+        (input && input({ vpW: vpWidth, vpH:vpHeight }))
     );
     const timeout = useRef(undefined);
-    const listener = useCallback((!input || hasCustomHasher) ?
-        state => setState(state) :
-        state => {
-            if(timeout.current) { clearTimeout(timeout.current) }
-            timeout.current = setTimeout(() => setState(state), input);
+    const listener = useCallback(
+        (!input || hasCustomHasher) ?
+            state => setState(state) :
+            state => {
+                if(timeout.current) { clearTimeout(timeout.current) }
+                timeout.current = setTimeout(() => setState(state), input);
     }, [input]);
 
     useLayoutEffect(() => {
+        if(hasCustomHasher) {
+            resolverMap.set(listener, { hasher: input, prevHash: state.hash });
+        }
         listeners.add(listener);
 
         if(window && listeners.size == 1) {
