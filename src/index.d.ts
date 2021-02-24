@@ -1,9 +1,12 @@
 declare module 'use-viewport-sizes' {
     /**
-     * Hook which observes viewport dimensions.
+     * Hook which observes viewport dimensions. Returns [width, height] of
+     * current visible viewport of app.
      *
-     * If input not specified, returns the [width, height] when the window changes.
-     * If input is specified as a number, it returns the [width, height].
+     * If no input specified, returns the [width, height] when the window changes.
+     *
+     * If input is specified as a number, it interprets this as the number of
+     * miliseconds to debounce before updates.
      *
      * If the input is specified as a function, it accepts a callback
      * with the viewport width and height passed in the first arg as
