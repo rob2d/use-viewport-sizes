@@ -1,14 +1,14 @@
-import { useState, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo, useCallback, useRef, useLayoutEffect, } from 'react';
 
-function getVpWidth () {
+function getVpWidth() {
     return (typeof window != 'undefined') ? Math.max(
         window.document.documentElement.clientWidth,
         window.innerWidth || 0
-      ) : 0;
+    ) : 0;
 }
 
 
-function getVpHeight () {
+function getVpHeight() {
     return (typeof window != 'undefined') ? Math.max(
         window.document.documentElement.clientHeight,
         window.innerHeight || 0
@@ -19,15 +19,12 @@ function getVpHeight () {
 //  Shared State   //
 // =============== //
 
-// NOTE: using vars and separating since Babel
-// transpilation saves a bit of filesize here
-
 /**
  * listening component functions
  *
  * @type Function
  */
-var listeners = new Set();
+const listeners = new Set();
 
 /**
  * contains a "hasher" which manages the behavior
@@ -36,12 +33,16 @@ var listeners = new Set();
  * for minimum overhead and so we can reference
  * it easily on deletion
  *
- * @type Map<Object, {{ hasher: Function, prevHash: Any  }}>
+ * @type Map<Object, {{
+ *      hasher: Function,
+ *      prevHash: Any,
+ *      options
+ * }}>
  */
-var resolverMap = new Map();
+const resolverMap = new Map();
 
-var vpWidth = getVpWidth();
-var vpHeight = getVpHeight();
+let vpWidth = getVpWidth();
+let vpHeight = getVpHeight();
 
 // should only be called by *one* component once;
 // will iterate through all subscribers
@@ -51,20 +52,26 @@ function onResize() {
     vpWidth = getVpWidth();
     vpHeight = getVpHeight();
 
-    listeners.forEach(function(listener) {
+    listeners.forEach(listener => {
         const params = { vpW: vpWidth, vpH: vpHeight };
 
-        if(!resolverMap.has(listener)) {
-            listener(params);
+        let shouldRun = false;
+        let hash;
+
+        const { options, prevHash=undefined } = resolverMap?.get(listener) || {};
+        const { hasher } = options;
+
+        if(!options?.hasher) {
+            shouldRun = true;
         }
         else {
-            const { hasher, prevHash } = resolverMap.get(listener);
-            const hash = hasher(params);
+            hash = hasher(params);
+            if(hash != prevHash) { shouldRun = true }
+        }
 
-            if(hash != prevHash) {
-                listener({ ...params, hash });
-                resolverMap.set(listener, { hasher, prevHash: hash });
-            }
+        if(shouldRun) {
+            resolverMap.set(listener, { options, prevHash: hash });
+            listener({ ...params, options, hash });
         }
     });
 }
@@ -85,24 +92,50 @@ function onResize() {
  * @input {Function|Number} input
  */
 function useViewportSizes(input) {
-    const hasCustomHasher = (typeof input == 'function');
-    const [state, setState] = useState(()=> !hasCustomHasher ?
-        ({ vpW: vpWidth, vpH: vpHeight }) :
-        (input && input({ vpW: vpWidth, vpH:vpHeight }))
-    );
-    const timeout = useRef(undefined);
-    const listener = useCallback(
-        (!input || hasCustomHasher) ?
-            state => setState(state) :
-            state => {
-                if(timeout.current) { clearTimeout(timeout.current) }
-                timeout.current = setTimeout(() => setState(state), input);
-    }, [input]);
+    const hasher = ((typeof input == 'function') ?
+        input :
+        input?.hasher
+    ) || undefined;
+
+    const debounceTimeout = input?.debounceTimeout || undefined;
+
+    const throttleTimeout = ((typeof input == 'number') ?
+        input :
+        input?.throttleTimeout
+    ) || undefined;
+
+    const dimension = input?.dimension || 'both';
+
+    const options = {
+        ...(typeof input == 'function' ? {} : input),
+        dimension,
+        hasher
+    };
+
+    const [state, setState] = useState(() => (!hasher ?
+        { vpW: vpWidth, vpH: vpHeight } :
+        hasher && hasher({ vpW: vpWidth, vpH: vpHeight })
+    ));
+    const debounceTimeoutRef = useRef(undefined);
+    const listener = useCallback((!hasher ?
+        state => setState(state) :
+        state => {
+            if(debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
+
+            debounceTimeoutRef.current = setTimeout(() => {
+                setState(state);
+            }, debounceTimeoutRef);
+        }
+    ), [debounceTimeoutRef, hasher, dimension]);
 
     useLayoutEffect(() => {
-        if(hasCustomHasher) {
-            resolverMap.set(listener, { hasher: input, prevHash: state.hash });
-        }
+        resolverMap.set(listener, {
+            options,
+            prevHash: state.hash || undefined
+        });
+
         listeners.add(listener);
 
         if(window && listeners.size == 1) {
@@ -117,16 +150,39 @@ function useViewportSizes(input) {
             listeners.delete(listener);
 
             if(listeners.size == 0) {
-                window.removeEventListener('resize', onResize);
+                window?.removeEventListener?.('resize', onResize);
             }
         };
     }, [listener]);
 
-    const returnValue = useMemo(() => ([
-        state.vpW, state.vpH, hasCustomHasher ? state.hash : onResize
-    ]), [state, onResize])
+    let dimensionHash;
+
+    switch (dimension) {
+        default:
+        case 'both': {
+            dimensionHash = `${state?.vpW}_${state.vpH}`;
+            break;
+        }
+        case 'w': {
+            dimensionHash = state?.vpW || 0;
+            break;
+        }
+        case 'h': {
+            dimensionHash = state?.vpH || 0;
+            break;
+        }
+    }
+
+    const returnValue = useMemo(() => {
+        switch (dimension) {
+            default:
+            case 'both': { return [state?.vpW || 0, state?.vpH || 0] }
+            case 'w': { return state?.vpW || 0 }
+            case 'h': { return state?.vpH || 0 }
+        }
+    }, [dimensionHash, onResize, dimension]);
 
     return returnValue;
 }
 
-export default useViewportSizes
+export default useViewportSizes;
