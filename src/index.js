@@ -44,10 +44,13 @@ const resolverMap = new Map();
 let vpWidth = getVpWidth();
 let vpHeight = getVpHeight();
 
-// should only be called by *one* component once;
-// will iterate through all subscribers
-// afterwards
-
+/**
+ * called to update resize dimensions;
+ * only called once throughout hooks so if
+ * using SSR, may be expensive to trigger in all
+ * components with effect on paint as described in
+ * readme
+ */
 function onResize() {
     vpWidth = getVpWidth();
     vpHeight = getVpHeight();
@@ -97,12 +100,12 @@ function useViewportSizes(input) {
         input?.hasher
     ) || undefined;
 
-    const debounceTimeout = input?.debounceTimeout || undefined;
-
-    const throttleTimeout = ((typeof input == 'number') ?
+    const debounceTimeout = ((typeof input == 'number') ?
         input :
-        input?.throttleTimeout
-    ) || undefined;
+        input?.debounceTimeout
+    ) || 0;
+
+    const throttleTimeout = input?.throttleTimeout || 0;
 
     const dimension = input?.dimension || 'both';
 
@@ -117,7 +120,7 @@ function useViewportSizes(input) {
         hasher && hasher({ vpW: vpWidth, vpH: vpHeight })
     ));
     const debounceTimeoutRef = useRef(undefined);
-    const listener = useCallback((!hasher ?
+    const listener = useCallback((!debounceTimeout ?
         state => setState(state) :
         state => {
             if(debounceTimeoutRef.current) {
@@ -126,7 +129,7 @@ function useViewportSizes(input) {
 
             debounceTimeoutRef.current = setTimeout(() => {
                 setState(state);
-            }, debounceTimeoutRef);
+            }, debounceTimeout);
         }
     ), [debounceTimeoutRef, hasher, dimension]);
 
@@ -176,9 +179,9 @@ function useViewportSizes(input) {
     const returnValue = useMemo(() => {
         switch (dimension) {
             default:
-            case 'both': { return [state?.vpW || 0, state?.vpH || 0] }
-            case 'w': { return state?.vpW || 0 }
-            case 'h': { return state?.vpH || 0 }
+            case 'both': { return [state?.vpW || 0, state?.vpH || 0, onResize] }
+            case 'w': { return [state?.vpW || 0, onResize] }
+            case 'h': { return [state?.vpH || 0, onResize] }
         }
     }, [dimensionHash, onResize, dimension]);
 

@@ -13,5 +13,7 @@ declare module 'use-viewport-sizes' {
      */
     export default function(
         input:number | VPSizesHasher | VPSizesOptions
-    ):[vpW: number, vpH: number] | number;
+    ):([vpW: number, vpH: number, triggerResize: Function] |
+        [dimension: number, triggerResize:Function]
+    );
 }
