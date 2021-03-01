@@ -1,19 +1,18 @@
 declare module 'use-viewport-sizes' {
+    export type VPSizesHasher = ({ vpW: number, vpH: number }) => String;
+    export type VPSizesOptions ={
+        debounceTimeout?: number,
+        hasher?: VPSizesHasher,
+        dimension?: 'w'|'h'|'both' = 'both'
+    };
+
     /**
      * Hook which observes viewport dimensions. Returns [width, height] of
-     * current visible viewport of app.
-     *
-     * If no input specified, returns the [width, height] when the window changes.
-     *
-     * If input is specified as a number, it interprets this as the number of
-     * miliseconds to debounce before updates.
-     *
-     * If the input is specified as a function, it accepts a callback
-     * with the viewport width and height passed in the first arg as
-     * { vpW, vpH }, and will only return a new value and update when
-     * the hash-value returned changes.
+     * current visible viewport of app, or the specific dimension
      */
     export default function(
-        input:number | (({ vpW: number, vpH: number }) => String)
-    ):[vpW: number, vpH: number];
+        input:number | VPSizesHasher | VPSizesOptions
+    ):([vpW: number, vpH: number, triggerResize: Function] |
+        [dimension: number, triggerResize:Function]
+    );
 }

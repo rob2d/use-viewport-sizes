@@ -105,8 +105,6 @@ function useViewportSizes(input) {
         input?.debounceTimeout
     ) || 0;
 
-    const throttleTimeout = input?.throttleTimeout || 0;
-
     const dimension = input?.dimension || 'both';
 
     const options = {
