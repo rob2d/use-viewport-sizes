@@ -1,8 +1,7 @@
 declare module 'use-viewport-sizes' {
-    export type VPSizesHasher = (({ vpW: number, vpH: number }) => String);
+    export type VPSizesHasher = ({ vpW: number, vpH: number }) => String;
     export type VPSizesOptions ={
         debounceTimeout?: number,
-        throttleTimeout?: number,
         hasher?: VPSizesHasher,
         dimension?: 'w'|'h'|'both' = 'both'
     };
