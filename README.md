@@ -27,8 +27,9 @@ npm install -D use-viewport-sizes
 <center>
 <img src="./doc/use-viewport-sizes.gif" />
 
-*Interact with the example shown on CodeSandox* @
-[https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-7rr9c](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr?file=/src/index.js&resolutionWidth=1401&resolutionHeight=891)
+[CodeSandbox IDE](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr) |
+[CodeSandbox DEMO](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr)
+
 
 </center>
 
