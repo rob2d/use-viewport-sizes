@@ -27,13 +27,11 @@ npm install -D use-viewport-sizes
 <center>
 <img src="./doc/use-viewport-sizes.gif" />
 
-[CodeSandbox IDE](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr) |
-[CodeSandbox DEMO](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr)
-
+[CodeSandbox IDE](https://codesandbox.io/s/react-hooks-viewport-sizes-demo-forked-i8urr)
 
 </center>
 
-### **Without Debouncing**
+### **Basic Use-case**
 *registers dimension changes on every resize event immediately*
 
 ```js
@@ -47,29 +45,49 @@ function MyComponent(props) {
 }
 ```
 
+### **Measure/Update only on one dimension**
 
-### **With Debouncing**
+If passed `options.dimension` as `w` or `h`, only the viewport width or height will be
+measured and observed for updates.
+The only dimension returned in the return array value will be the width or height, according
+to what was passed.
 
-If passed a number as the first argument, it registers dimension changes only when a user stops dragging/resizing the window for a specified number of miliseconds. This is useful for listening to expensive components such as data grids which may be too
-expensive to re-render during window resize dragging.
 ```js
-import React from 'react'
-import useViewportSizes from 'use-viewport-sizes'
+import React from 'react';
+import useViewportSizes from 'use-viewport-sizes';
 
-function MyExpensivelyRenderedComponent (props) {
-    const [vpWidth, vpHeight] = useViewportSizes(1000); // 1s debounce
+function MyComponent(props) {
+    const [vpHeight] = useViewportSizes({ dimension: 'h' });
 
     ...renderLogic
 }
 ```
 
-### **Only update vpW/vpH passed on specific conditions**
-If passed a function as the first argument, it will use this to calculate a hash that only updates the viewport when the calculation changes. In the example here, we are using it to detect when we have a breakpoint change which may change how a component is rendered if this is not fully possible or inconvenient via CSS `@media` queries. The hash will also be available as the 3rd value returned from the hook for convenience.
+
+### **With Debouncing**
+
+If passed `options.debounceTimeout`, or options are entered as a `Number`, it registers dimension changes only when a user stops dragging/resizing the window for a specified number of miliseconds. This is useful for listening to expensive components such as data grids which may be too
+expensive to re-render during window resize dragging.
+
 ```js
 import React from 'react';
 import useViewportSizes from 'use-viewport-sizes';
 
-function getBreakpoint({ vpW, vpH }) {
+function MyExpensivelyRenderedComponent(props) {
+    const [vpWidth, vpHeight] = useViewportSizes({ debounceTimeout: 1000 }); // 1s debounce
+
+    // ...renderLogic
+}
+```
+
+### **Only update vpW/vpH passed on specific conditions**
+If passed an `options.hasher` function, this will be used to calculate a hash that only updates the viewport when the calculation changes. In the example here, we are using it to detect when we have a breakpoint change which may change how a component is rendered if this is not fully possible or inconvenient via CSS `@media` queries. The hash will also be available as the 3rd value returned from the hook for convenience.
+
+```js
+import React from 'react';
+import useViewportSizes from 'use-viewport-sizes';
+
+function getBreakpointHash({ vpW, vpH }) {
     if(vpW < 640) {
         return 'md';
     }
@@ -85,7 +103,7 @@ function getBreakpoint({ vpW, vpH }) {
 }
 
 function MyBreakpointBehaviorComponent() {
-    const [vpW, vpH, bp] = useViewportSizes(getBreakpoint);
+    const [vpW, vpH, bp] = useViewportSizes({ hasher: getBreakpointHash });
 
     // do-something-with-breakpoints in render
     // and add new update for vpW, vpH in this component's
@@ -96,24 +114,24 @@ function MyBreakpointBehaviorComponent() {
 
 ### **Server Side Rendering**
 
-*While serverside rendering is supported, it requires an explicit update via `useEffect` since viewport does not actually exist on the server before rendering to client. The following has been tested with [NextJS](https://nextjs.org/).*
+*Note: While serverside rendering is supported, it requires an explicit update via `useEffect` since viewport does not actually exist on the server before rendering to client. The following has been tested with [NextJS](https://nextjs.org/).*
 
-*Sidenote that you will see a `useLayoutEffect` warning from React. This is perfectly normal as there is no viewport/context to paint to when pre-rendering in SSR and will not interfere with your app once served to the client*
+*Sidenote that you will see a `useLayoutEffect` warning from React. This is perfectly expected as there is no viewport/context to paint to when pre-rendering in SSR and will not interfere with your app once served to the client*
 
 ```js
 import React, { useLayoutEffect } from 'react'
 import useViewportSizes from 'use-viewport-sizes'
 
 function MySSRComponent (props) {
-    const [vpWidth, vpHeight, updateVpSizes] = useViewportSizes()
+    const [vpW, vpH, updateVpSizes] = useViewportSizes();
 
     // below, we add one post-render update
     // in order to register the client's viewport sizes
     // after serving SSR content
 
-    useEffect(()=> { updateVpSizes(); }, []);
+    useEffect(()=> { updateVpSizes() }, []);
 
-    ...renderLogic
+    // ...renderLogic
 }
 ```
 
