@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useLayoutEffect, } from 'react';
+import { useState, useMemo, useCallback, useRef, useLayoutEffect } from 'react';
 
 function getVpWidth() {
     return (typeof window != 'undefined') ? Math.max(
@@ -45,6 +45,57 @@ let vpWidth = getVpWidth();
 let vpHeight = getVpHeight();
 
 /**
+ * called to update resize dimensions with the handlers
+ * passed themselves; separated from the actual
+ * pub-sub caller (onResize) so we can individually
+ * dispatch subscription events and avoid updating all
+ * components at once
+ *
+ * @param {*} listener
+ * @param {*} vpWidth
+ * @param {*} vpHeight
+ */
+function triggerResizeListener(listener, vpWidth, vpHeight) {
+    const params = { vpW: vpWidth, vpH: vpHeight };
+
+    let shouldRun = false;
+    let hash;
+
+    const { options, prevHash=undefined } = resolverMap?.get(listener) || {};
+    const { hasher } = options;
+
+    if(!options?.hasher) {
+        const dimensionsUpdated = new Set();
+
+        switch (options?.dimension) {
+            case 'w':
+                hash = `${vpWidth}`;
+                break;
+            case 'h':
+                hash = `${vpHeight}`;
+                break;
+            default:
+            case 'both':
+                hash = `${vpWidth}_${vpHeight}`;
+                break;
+        }
+    }
+    else {
+        hash = hasher(params);
+    }
+
+    if(hash != prevHash) { shouldRun = true }
+
+    if(shouldRun) {
+        const state = { ...params, options, hash };
+        resolverMap.set(listener, {
+            options, prevHash: hash, prevState: state
+        });
+        listener(state);
+    }
+}
+
+/**
  * called to update resize dimensions;
  * only called once throughout hooks so if
  * using SSR, may be expensive to trigger in all
@@ -55,81 +106,103 @@ function onResize() {
     vpWidth = getVpWidth();
     vpHeight = getVpHeight();
 
-    listeners.forEach(listener => {
-        const params = { vpW: vpWidth, vpH: vpHeight };
-
-        let shouldRun = false;
-        let hash;
-
-        const { options, prevHash=undefined } = resolverMap?.get(listener) || {};
-        const { hasher } = options;
-
-        if(!options?.hasher) {
-            shouldRun = true;
-        }
-        else {
-            hash = hasher(params);
-            if(hash != prevHash) { shouldRun = true }
-        }
-
-        if(shouldRun) {
-            resolverMap.set(listener, { options, prevHash: hash });
-            listener({ ...params, options, hash });
-        }
-    });
+    listeners.forEach(listener =>
+        triggerResizeListener(listener, vpWidth, vpHeight)
+    );
 }
 
 // =============== //
 //    the Hook     //
 // =============== //
 
-/**
- * observes the viewport. If input not specified,
- * returns the [width, height] when the window changes.
- * If input is specified as a number, it returns the [width, height].
- *
- * If the input is specified as a function, it accepts { vpW, vpH }
- * and will only return a new value and update when the value
- * computed changes.
- *
- * @input {Function|Number} input
- */
+function getInitialState(options, vpW, vpH) {
+    let returnValue = {};
+    if(options.hasher) {
+        returnValue = options.hasher({ vpW, vpH });
+    } else {
+        returnValue = { vpW, vpH };
+    }
+
+    return (!options.hasher ?
+        { vpW, vpH } :
+        hasher && hasher({ vpW: vpWidth, vpH: vpHeight })
+    )
+}
+
 function useViewportSizes(input) {
     const hasher = ((typeof input == 'function') ?
         input :
         input?.hasher
     ) || undefined;
 
-    const debounceTimeout = ((typeof input == 'number') ?
+    const debounceTimeout = ((typeof input?.debounceTimeout == 'number') ?
+        input?.debounceTimeout : 0
+    );
+
+    const throttleTimeout = ((typeof input == 'number')  ?
         input :
-        input?.debounceTimeout
+        input?.throttleTimeout
     ) || 0;
 
     const dimension = input?.dimension || 'both';
 
     const options = {
-        ...(typeof input == 'function' ? {} : input),
+        ...(typeof input == 'object' ? input : {}),
         dimension,
         hasher
     };
 
-    const [state, setState] = useState(() => (!hasher ?
-        { vpW: vpWidth, vpH: vpHeight } :
-        hasher && hasher({ vpW: vpWidth, vpH: vpHeight })
-    ));
+    const [state, setState] = useState(() => getInitialState(options));
     const debounceTimeoutRef = useRef(undefined);
-    const listener = useCallback((!debounceTimeout ?
-        state => setState(state) :
-        state => {
+    const throttleTimeoutRef = useRef(undefined);
+    const lastThrottledRef = useRef(undefined);
+
+    const listener = useCallback(nextState => {
+        if(!debounceTimeout && !throttleTimeout) {
+            setState(nextState);
+            return;
+        }
+
+        if(debounceTimeout) {
             if(debounceTimeoutRef.current) {
                 clearTimeout(debounceTimeoutRef.current);
             }
 
-            debounceTimeoutRef.current = setTimeout(() => {
-                setState(state);
-            }, debounceTimeout);
+            debounceTimeoutRef.current = setTimeout(() => (
+                setState(nextState)
+            ), debounceTimeout);
         }
-    ), [debounceTimeoutRef, hasher, dimension]);
+
+        if(throttleTimeout) {
+            const lastTick = lastThrottledRef.current;
+            const timeSinceLast = (!lastTick ? throttleTimeout : Date.now() - lastTick);
+            console.log('should process in ->', throttleTimeout - timeSinceLast);
+
+            throttleTimeoutRef.current = setTimeout(() => {
+                lastThrottledRef.current = new Date().getTime();
+                const vpWidth = getVpWidth();
+                const vpHeight = getVpHeight();
+
+                const dimensionsUpdated = new Set();
+
+                if(vpHeight != state.vpH) {
+                    dimensionsUpdated.add('h');
+                }
+
+                if(vpWidth != state.vpW) {
+                    dimensionsUpdated.add('w');
+                }
+
+                if(dimensionsUpdated.has('w') || dimensionsUpdated.has('h')) {
+                    dimensionsUpdated.add('both');
+                }
+
+                if(dimensionsUpdated.has(dimension)) {
+                    setState({ vpW: vpWidth, vpH: vpHeight });
+                }
+            }, Math.max(0, throttleTimeout - timeSinceLast));
+        }
+    }, [debounceTimeoutRef, hasher, dimension, state]);
 
     useLayoutEffect(() => {
         resolverMap.set(listener, {
