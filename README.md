@@ -64,10 +64,29 @@ function MyComponent(props) {
 ```
 
 
+### **With Throttling**
+
+If passed `options.throttleTimeout`, or options are entered as a `Number`, dimension changes
+are registered on a throttled basis e.g. with a maximum frequency.
+
+This is useful for listening to expensive components such as data grids which may be too
+expensive to re-render during window resize dragging.
+
+```js
+import React from 'react';
+import useViewportSizes from 'use-viewport-sizes';
+
+function MyExpensivelyRenderedComponent(props) {
+    const [vpWidth, vpHeight] = useViewportSizes({ throttleTimeout: 1000 }); // 1s throttle
+
+    // ...renderLogic
+}
+```
+
 ### **With Debouncing**
 
-If passed `options.debounceTimeout`, or options are entered as a `Number`, it registers dimension changes only when a user stops dragging/resizing the window for a specified number of miliseconds. This is useful for listening to expensive components such as data grids which may be too
-expensive to re-render during window resize dragging.
+If passed `options.debounceTimeout`, dimension changes are registered only when a user stops dragging/resizing the window for a specified number of miliseconds. This is an alternative behavior to `throttleTimeout` where it may be less
+important to update viewport the entire way that a user is resizing.
 
 ```js
 import React from 'react';
