@@ -176,7 +176,8 @@ function useViewportSizes(input) {
         if(throttleTimeout) {
             const lastTick = lastThrottledRef.current;
             const timeSinceLast = (!lastTick ? throttleTimeout : Date.now() - lastTick);
-            console.log('should process in ->', throttleTimeout - timeSinceLast);
+
+            clearTimeout(throttleTimeoutRef);
 
             throttleTimeoutRef.current = setTimeout(() => {
                 lastThrottledRef.current = new Date().getTime();
