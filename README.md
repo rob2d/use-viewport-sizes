@@ -12,7 +12,7 @@ npm install -D use-viewport-sizes
 ```
 
 ## Benefits ##
-- extremely lightweight and zero dependencies -- adds **1.6kb** after gzip.
+- extremely lightweight and zero dependencies -- adds **1.9kb** after gzip.
 - only one `window.onresize` handler used to subscribe to any changes in an unlimited number of components no matter the use-cases.
 - optional debounce to delay updates until user stops dragging their window for a moment; this can make expensive components with size-dependent calculations run much faster and your app feel smoother.
 - debouncing does not create new handlers or waste re-renders in your component; the results are also pooled from only one resize result.
