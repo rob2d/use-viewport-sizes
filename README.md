@@ -1,9 +1,8 @@
 # use-viewport-sizes #
 
-![npm](https://img.shields.io/npm/v/use-viewport-sizes.svg?color=blue) ![David](https://img.shields.io/david/rob2d/use-viewport-sizes.svg) ![npm](https://img.shields.io/npm/dw/use-viewport-sizes.svg?color=red) ![GitHub issues](https://img.shields.io/github/issues-raw/rob2d/use-viewport-sizes.svg) ![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)
+![npm](https://img.shields.io/npm/v/use-viewport-sizes.svg?color=blue) ![npm](https://img.shields.io/npm/dw/use-viewport-sizes.svg?color=red) ![GitHub issues](https://img.shields.io/github/issues-raw/rob2d/use-viewport-sizes.svg) ![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)
 
-a tiny React hook which allows you to track visible window viewport size in your components w/ an optional debounce and
-other flexible options for optimal usage.
+a tiny TS-compatible React hook which allows you to track visible window viewport size in your components w/ an optional debounce and other flexible options for optimal usage.
 
 ## Installation ##
 
