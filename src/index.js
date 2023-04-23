@@ -1,4 +1,10 @@
-import { useState, useMemo, useCallback, useRef, useLayoutEffect } from 'react';
+import { 
+    useState, 
+    useMemo, 
+    useCallback, 
+    useRef, 
+    useLayoutEffect 
+} from 'react';
 
 function getVpWidth() {
     return (typeof window != 'undefined') ? Math.max(
@@ -64,9 +70,7 @@ function triggerResizeListener(listener, vpWidth, vpHeight) {
     const { options, prevHash=undefined } = resolverMap?.get(listener) || {};
     const { hasher } = options;
 
-    if(!options?.hasher) {
-        const dimensionsUpdated = new Set();
-
+    if(!hasher) {
         switch (options?.dimension) {
             case 'w':
                 hash = `${vpWidth}`;
@@ -89,7 +93,9 @@ function triggerResizeListener(listener, vpWidth, vpHeight) {
     if(shouldRun) {
         const state = { ...params, options, hash };
         resolverMap.set(listener, {
-            options, prevHash: hash, prevState: state
+            options, 
+            prevHash: hash, 
+            prevState: state
         });
         listener(state);
     }
@@ -116,20 +122,13 @@ function onResize() {
 // =============== //
 
 function getInitialState(options, vpW, vpH) {
-    let returnValue = {};
-    if(options.hasher) {
-        returnValue = options.hasher({ vpW, vpH });
-    } else {
-        returnValue = { vpW, vpH };
-    }
-
     return (!options.hasher ?
         { vpW, vpH } :
-        hasher && hasher({ vpW: vpWidth, vpH: vpHeight })
+        options.hasher({ vpW: vpWidth, vpH: vpHeight })
     )
 }
 
-function useViewportSizes(input) {
+export default function useViewportSizes(input) {
     const hasher = ((typeof input == 'function') ?
         input :
         input?.hasher
@@ -213,9 +212,17 @@ function useViewportSizes(input) {
 
         listeners.add(listener);
 
+        // if first resize listener, add resize event
+
         if(window && listeners.size == 1) {
             window.addEventListener('resize', onResize);
             onResize();
+        } 
+        
+        // if additional resize listener, trigger it on the new listener
+
+        else {
+            triggerResizeListener(listener, vpWidth, vpHeight);
         }
 
         // clean up listeners on unmount
@@ -259,5 +266,3 @@ function useViewportSizes(input) {
 
     return returnValue;
 }
-
-export default useViewportSizes;
