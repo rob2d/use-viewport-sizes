@@ -39,7 +39,7 @@ import useViewportSizes from 'use-viewport-sizes'
 function MyComponent(props) {
     const [vpWidth, vpHeight] = useViewportSizes();
 
-    ...renderLogic
+    // ...renderLogic
 }
 ```
 
@@ -56,10 +56,9 @@ import useViewportSizes from 'use-viewport-sizes';
 function MyComponent(props) {
     const [vpHeight] = useViewportSizes({ dimension: 'h' });
 
-    ...renderLogic
+    // ...renderLogic
 }
 ```
-
 
 ### **With Throttling**
 
@@ -123,7 +122,6 @@ function MyBreakpointBehaviorComponent() {
     // subtree only when a named breakpoint changes
 }
 ```
-
 
 ### **Server Side Rendering**
 
