@@ -34,7 +34,6 @@ npm install -D use-viewport-sizes
 *registers dimension changes on every resize event immediately*
 
 ```js
-import React from 'react'
 import useViewportSizes from 'use-viewport-sizes'
 
 function MyComponent(props) {
@@ -52,7 +51,6 @@ The only dimension returned in the return array value will be the width or heigh
 to what was passed.
 
 ```js
-import React from 'react';
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyComponent(props) {
@@ -72,7 +70,6 @@ This is useful for listening to expensive components such as data grids which ma
 expensive to re-render during window resize dragging.
 
 ```js
-import React from 'react';
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyExpensivelyRenderedComponent(props) {
@@ -88,7 +85,6 @@ If passed `options.debounceTimeout`, dimension changes are registered only when 
 important to update viewport the entire way that a user is resizing.
 
 ```js
-import React from 'react';
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyExpensivelyRenderedComponent(props) {
@@ -102,7 +98,6 @@ function MyExpensivelyRenderedComponent(props) {
 If passed an `options.hasher` function, this will be used to calculate a hash that only updates the viewport when the calculation changes. In the example here, we are using it to detect when we have a breakpoint change which may change how a component is rendered if this is not fully possible or inconvenient via CSS `@media` queries. The hash will also be available as the 3rd value returned from the hook for convenience.
 
 ```js
-import React from 'react';
 import useViewportSizes from 'use-viewport-sizes';
 
 function getBreakpointHash({ vpW, vpH }) {
@@ -137,7 +132,7 @@ function MyBreakpointBehaviorComponent() {
 *Sidenote that you will see a `useLayoutEffect` warning from React. This is perfectly expected as there is no viewport/context to paint to when pre-rendering in SSR and will not interfere with your app once served to the client*
 
 ```js
-import React, { useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import useViewportSizes from 'use-viewport-sizes'
 
 function MySSRComponent (props) {
