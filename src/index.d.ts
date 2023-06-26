@@ -1,9 +1,9 @@
 declare module 'use-viewport-sizes' {
-    export type VPSizesHasher = ({ vpW, vpH }: {  vpW: number, vpH: number}) => String;
+    export type VPSizesHasher = ({ vpW, vpH }: { vpW: number, vpH: number}) => string;
     export type VPSizesOptions ={
         debounceTimeout?: number,
         hasher?: VPSizesHasher,
-        dimension: 'both' | undefined
+        dimension?: 'both'
     };
 
     export type VPSizeOptions ={
@@ -16,23 +16,23 @@ declare module 'use-viewport-sizes' {
      * Hook which observes viewport dimensions. Returns [width, height] of
      * current visible viewport of app, or the specific dimension
      */
-    export default function(input:number|VPSizesOptions):([vpW: number, vpH: number, triggerResize: Function]);
+    export default function (input: number | VPSizesOptions): [vpW: number, vpH: number, triggerResize: Function];
 
     /**
      * Hook which observes viewport dimensions. Returns [width, height] of
      * current visible viewport of app, or the specific dimension
      */
-    export default function(input: VPSizeOptions):([dimension: number, triggerResize:Function]);
+    export default function (input: VPSizeOptions): [dimensionValue: number, triggerResize: Function];
 
     /**
      * Hook which observes viewport dimensions. Returns [width, height] of
      * current visible viewport of app, or the specific dimension
      */
-    export default function(input:VPSizesHasher):([vpW: number, vpH: number, triggerResize: Function]);
+    export default function (input: VPSizesHasher): [vpW: number, vpH: number, triggerResize: Function];
 
     /**
      * Hook which observes viewport dimensions. Returns [width, height] of
      * current visible viewport of app, or the specific dimension
      */
-    export default function():([vpW: number, vpH: number, triggerResize: Function]);
+    export default function (): [vpW: number, vpH: number, triggerResize: Function];
 }
