@@ -3,7 +3,8 @@ import {
     useMemo, 
     useCallback, 
     useRef, 
-    useLayoutEffect 
+    useLayoutEffect, 
+    useEffect, 
 } from 'react';
 
 function getVpWidth() {
@@ -19,6 +20,12 @@ function getVpHeight() {
         window.document.documentElement.clientHeight,
         window.innerHeight || 0
     ) : 0;
+}
+
+// Avoid useLayoutEffect warning during SSR
+// https://usehooks-ts.com/react-hook/use-isomorphic-layout-effect
+function useIsomorphicLayoutEffect() {
+    typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 }
 
 // =============== //
@@ -204,7 +211,7 @@ export default function useViewportSizes(input) {
         }
     }, [debounceTimeoutRef, hasher, dimension, state]);
 
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         resolverMap.set(listener, {
             options,
             prevHash: state.hash || undefined
