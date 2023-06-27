@@ -16,7 +16,7 @@ npm install -D use-viewport-sizes
 - optional debounce to delay updates until user stops dragging their window for a moment; this can make expensive components with size-dependent calculations run much faster and your app feel smoother.
 - debouncing does not create new handlers or waste re-renders in your component; the results are also pooled from only one resize result.
 - optional hash function to update component subtree only at points you would like to.
-- supports lazy loaded components and SSR out of the box (see example SSR under Usage section).
+- supports lazy loaded components and SSR out of the box.
 
 
 ## Usage ##
@@ -120,29 +120,6 @@ function MyBreakpointBehaviorComponent() {
     // do-something-with-breakpoints in render
     // and add new update for vpW, vpH in this component's
     // subtree only when a named breakpoint changes
-}
-```
-
-### **Server Side Rendering**
-
-*Note: While serverside rendering is supported, it requires an explicit update via `useEffect` since viewport does not actually exist on the server before rendering to client. The following has been tested with [NextJS](https://nextjs.org/).*
-
-*Sidenote that you will see a `useLayoutEffect` warning from React. This is perfectly expected as there is no viewport/context to paint to when pre-rendering in SSR and will not interfere with your app once served to the client*
-
-```js
-import { useLayoutEffect } from 'react'
-import useViewportSizes from 'use-viewport-sizes'
-
-function MySSRComponent (props) {
-    const [vpW, vpH, updateVpSizes] = useViewportSizes();
-
-    // below, we add one post-render update
-    // in order to register the client's viewport sizes
-    // after serving SSR content
-
-    useEffect(()=> { updateVpSizes() }, []);
-
-    // ...renderLogic
 }
 ```
 
