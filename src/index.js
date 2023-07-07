@@ -3,8 +3,7 @@ import {
     useMemo, 
     useCallback, 
     useRef, 
-    useLayoutEffect, 
-    useEffect, 
+    useLayoutEffect
 } from 'react';
 
 function getVpWidth() {
@@ -24,9 +23,8 @@ function getVpHeight() {
 
 // Avoid useLayoutEffect warning during SSR
 // https://usehooks-ts.com/react-hook/use-isomorphic-layout-effect
-function useIsomorphicLayoutEffect() {
-    typeof window !== 'undefined' ? useLayoutEffect : useEffect;
-}
+export const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : () => {};
 
 // =============== //
 //  Shared State   //
