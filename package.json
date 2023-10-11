@@ -9,7 +9,7 @@
     "build": "webpack",
     "dev": "webpack-dev-server --env testServer --mode development --open",
     "prepublishOnly": "npm run build",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "peerDependencies": {
     "react": "^16.8.6 || ^17.0.0 || ^18.0.0"
