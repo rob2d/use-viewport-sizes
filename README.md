@@ -100,26 +100,18 @@ If passed an `options.hasher` function, this will be used to calculate a hash th
 import useViewportSizes from 'use-viewport-sizes';
 
 function getBreakpointHash({ vpW, vpH }) {
-    if(vpW < 640) {
-        return 'md';
-    }
-    if(vpW < 320) {
-        return 'sm';
-    }
-    else if(vpW < 240) {
-        return 'xs';
-    }
-    else {
-        return 'lg';
-    }
+    if(vpW <= 240) { return 'xs' }
+    if(vpW <= 320) { return 'sm' }
+    else if(vpW <= 640) { return 'md' }
+    else return 'lg';
 }
 
 function MyBreakpointBehaviorComponent() {
-    const [vpW, vpH, bp] = useViewportSizes({ hasher: getBreakpointHash });
+    const [vpW, vpH] = useViewportSizes({ hasher: getBreakpointHash });
 
-    // do-something-with-breakpoints in render
-    // and add new update for vpW, vpH in this component's
-    // subtree only when a named breakpoint changes
+    // do-something in render and add new update for vpW, 
+    // vpH in this component's subtree only when a breakpoint
+    // hash updates
 }
 ```
 
