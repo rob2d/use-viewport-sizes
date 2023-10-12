@@ -4,7 +4,7 @@
 ![Github Workflow Status](https://github.com/rob2d/use-viewport-sizes/actions/workflows/node.js.yml/badge.svg)
 [![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/blob/master/LICENSE)
 
-a tiny TS-compatible React hook which allows you to track visible window viewport size in your components w/ an optional debounce and other flexible options for optimal usage.
+a tiny TS-compatible React hook which allows you to track visible window viewport size in your components w/ an optional debounce, throttle or custom memo function for updates for optimal rendering.
 
 ## Installation ##
 
