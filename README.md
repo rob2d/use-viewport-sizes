@@ -1,6 +1,8 @@
 # use-viewport-sizes #
 
-[![npm](https://img.shields.io/npm/v/use-viewport-sizes.svg?color=blue)](https://www.npmjs.com/package/use-viewport-sizes) [![npm](https://img.shields.io/npm/dw/use-viewport-sizes.svg?color=red)]() [![GitHub issues](https://img.shields.io/github/issues-raw/rob2d/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/issues) [![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/v/use-viewport-sizes.svg?color=blue)](https://www.npmjs.com/package/use-viewport-sizes) [![npm](https://img.shields.io/npm/dw/use-viewport-sizes.svg?color=red)]() [![GitHub issues](https://img.shields.io/github/issues-raw/rob2d/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/issues) 
+![Github Workflow Status](https://github.com/rob2d/use-viewport-sizes/actions/workflows/node.js.yml/badge.svg)
+[![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/blob/master/LICENSE)
 
 a tiny TS-compatible React hook which allows you to track visible window viewport size in your components w/ an optional debounce and other flexible options for optimal usage.
 
