@@ -117,5 +117,63 @@ describe('useViewportSizes', () => {
             jest.runAllTimers();
             expect(screen.getByTestId('vpw').textContent).toEqual('500');
         });
+
+        test('debounces updated render of vpw/vph with debounceTimeout', async () => {
+            jest.useFakeTimers();
+            setViewportDimensions(640, 480);
+            await jest.runAllTimersAsync();
+            render(<DimensionsView options={{ debounceTimeout: 500 }} />);
+            await act(async () => {
+                await jest.runAllTimersAsync();
+            });
+            expect(screen.getByTestId('vpw').textContent).toEqual('640');
+            expect(screen.getByTestId('vph').textContent).toEqual('480');
+
+            await act(async () => {
+                await jest.advanceTimersByTimeAsync(100);
+            });
+            expect(screen.getByTestId('vpw').textContent).toEqual('640');
+            expect(screen.getByTestId('vph').textContent).toEqual('480');
+
+            await act(async () => {
+                await jest.advanceTimersByTimeAsync(450);
+                setViewportDimensions(100, 100);
+                await jest.runAllTimersAsync();
+            });
+            expect(screen.getByTestId('vpw').textContent).toEqual('100');
+            expect(screen.getByTestId('vph').textContent).toEqual('100');
+        });
+
+        test('throttles updated render of vpw/vph with throttleTimeout', async () => {
+            jest.useFakeTimers();
+            
+            setViewportDimensions(640, 480);
+            render(<DimensionsView options={{ throttleTimeout: 100 }} />);
+
+            await act(async () => {
+                await jest.runAllTimersAsync();
+                setViewportDimensions(200, 200);
+                await jest.advanceTimersByTimeAsync(50);
+            });
+            
+            expect(screen.getByTestId('vpw').textContent).toEqual('640');
+            expect(screen.getByTestId('vph').textContent).toEqual('480');
+
+            await act(async () => {
+                await jest.advanceTimersByTimeAsync(150);
+            });
+            
+            expect(screen.getByTestId('vpw').textContent).toEqual('200');
+            expect(screen.getByTestId('vph').textContent).toEqual('200');
+
+            await act(async () => {
+                await jest.advanceTimersByTimeAsync(450);
+                setViewportDimensions(100, 100);
+                await jest.runAllTimersAsync();
+            });
+           
+            expect(screen.getByTestId('vpw').textContent).toEqual('100');
+            expect(screen.getByTestId('vph').textContent).toEqual('100');
+        });
     });
 });
