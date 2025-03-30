@@ -52,9 +52,9 @@ npm install -D use-viewport-sizes
 import useViewportSizes from 'use-viewport-sizes'
 
 function MyComponent(props) {
-    const [vpWidth, vpHeight] = useViewportSizes();
+  const [vpWidth, vpHeight] = useViewportSizes();
 
-    // ...renderLogic
+  // ...renderLogic
 }
 ```
 
@@ -69,9 +69,9 @@ to what was passed.
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyComponent(props) {
-    const [vpHeight] = useViewportSizes({ dimension: 'h' });
+  const [vpHeight] = useViewportSizes({ dimension: 'h' });
 
-    // ...renderLogic
+  // ...renderLogic
 }
 ```
 
@@ -87,9 +87,10 @@ expensive to re-render during window resize dragging.
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyExpensivelyRenderedComponent(props) {
-    const [vpWidth, vpHeight] = useViewportSizes({ throttleTimeout: 1000 }); // 1s throttle
+  // throttled by 1s between updates
+  const [vpWidth, vpHeight] = useViewportSizes({ throttleTimeout: 1000 }); 
 
-    // ...renderLogic
+  // ...renderLogic
 }
 ```
 
@@ -102,9 +103,10 @@ important to update viewport the entire way that a user is resizing.
 import useViewportSizes from 'use-viewport-sizes';
 
 function MyExpensivelyRenderedComponent(props) {
-    const [vpWidth, vpHeight] = useViewportSizes({ debounceTimeout: 1000 }); // 1s debounce
+  // debounced by 1s between updates
+  const [vpWidth, vpHeight] = useViewportSizes({ debounceTimeout: 1000 });
 
-    // ...renderLogic
+  // ...renderLogic
 }
 ```
 
@@ -115,18 +117,18 @@ If passed an `options.hasher` function, this will be used to calculate a hash th
 import useViewportSizes from 'use-viewport-sizes';
 
 function getBreakpointHash({ vpW, vpH }) {
-    if(vpW <= 240) { return 'xs' }
-    if(vpW <= 320) { return 'sm' }
-    else if(vpW <= 640) { return 'md' }
-    else return 'lg';
+  if(vpW <= 240) { return 'xs' }
+  if(vpW <= 320) { return 'sm' }
+  else if(vpW <= 640) { return 'md' }
+  return 'lg';
 }
 
 function MyBreakpointBehaviorComponent() {
-    const [vpW, vpH] = useViewportSizes({ hasher: getBreakpointHash });
+  const [vpW, vpH] = useViewportSizes({ hasher: getBreakpointHash });
 
-    // do-something in render and add new update for vpW, 
-    // vpH in this component's subtree only when a breakpoint
-    // hash updates
+  // do-something in render and add new update for vpW, 
+  // vpH in this component's subtree only when a breakpoint
+  // hash updates
 }
 ```
 
