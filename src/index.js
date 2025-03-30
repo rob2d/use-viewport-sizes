@@ -7,18 +7,18 @@ import {
 } from 'react';
 
 function getVpWidth() {
-    return (typeof window != 'undefined') ? Math.max(
-        window.document.documentElement.clientWidth,
-        window.innerWidth || 0
-    ) : 0;
+    return Math.max(
+        globalThis?.document?.documentElement?.clientWidth || 0,
+        globalThis?.innerWidth || 0
+    );
 }
 
 
 function getVpHeight() {
-    return (typeof window != 'undefined') ? Math.max(
-        window.document.documentElement.clientHeight,
-        window.innerHeight || 0
-    ) : 0;
+    return Math.max(
+        globalThis?.document?.documentElement?.clientHeight || 0,
+        globalThis?.innerHeight || 0
+    );
 }
 
 // Avoid useLayoutEffect warning during SSR
@@ -68,40 +68,35 @@ let vpHeight = getVpHeight();
  */
 function triggerResizeListener(listener, vpWidth, vpHeight) {
     const params = { vpW: vpWidth, vpH: vpHeight };
-
-    let shouldRun = false;
     let hash;
 
     const { options, prevHash=undefined } = resolverMap?.get(listener) || {};
-    const { hasher } = options;
 
-    if(!hasher) {
+    if(!options.hasher) {
         switch (options?.dimension) {
             case 'w':
-                hash = `${vpWidth}`;
+                hash = vpWidth;
                 break;
             case 'h':
-                hash = `${vpHeight}`;
+                hash = vpHeight;
                 break;
             default:
-            case 'both':
-                hash = `${vpWidth}_${vpHeight}`;
+                hash = (vpWidth << 16) | vpHeight;
                 break;
         }
     }
     else {
-        hash = hasher(params);
+        hash = options.hasher(params);
     }
 
-    if(hash != prevHash) { shouldRun = true }
-
-    if(shouldRun) {
+    if(hash != prevHash) {
         const state = { ...params, options, hash };
         resolverMap.set(listener, {
             options, 
             prevHash: hash, 
             prevState: state
         });
+
         listener(state);
     }
 }
@@ -126,13 +121,6 @@ function onResize() {
 //    the Hook     //
 // =============== //
 
-function getInitialState(options, vpW, vpH) {
-    return (!options.hasher ?
-        { vpW, vpH } :
-        options.hasher({ vpW: vpWidth, vpH: vpHeight })
-    )
-}
-
 export default function useViewportSizes(input) {
     const hasher = ((typeof input == 'function') ?
         input :
@@ -156,7 +144,10 @@ export default function useViewportSizes(input) {
         hasher
     };
 
-    const [state, setState] = useState(() => getInitialState(options));
+    const [state, setState] = useState(() => {
+        const defaultState = { vpW: vpWidth, vpH: vpHeight };
+        return options.hasher ? options.hasher(defaultState) : defaultState;
+    });
     const debounceTimeoutRef = useRef(undefined);
     const throttleTimeoutRef = useRef(undefined);
     const lastThrottledRef = useRef(undefined);
@@ -247,25 +238,24 @@ export default function useViewportSizes(input) {
     switch (dimension) {
         default:
         case 'both': {
-            dimensionHash = `${state?.vpW}_${state.vpH}`;
+            dimensionHash = `${state.vpW}_${state.vpH}`;
             break;
         }
         case 'w': {
-            dimensionHash = state?.vpW || 0;
+            dimensionHash = state.vpW || 0;
             break;
         }
         case 'h': {
-            dimensionHash = state?.vpH || 0;
+            dimensionHash = state.vpH || 0;
             break;
         }
     }
 
     const returnValue = useMemo(() => {
         switch (dimension) {
-            default:
-            case 'both': { return [state?.vpW || 0, state?.vpH || 0, onResize] }
-            case 'w': { return [state?.vpW || 0, onResize] }
-            case 'h': { return [state?.vpH || 0, onResize] }
+            default: { return [state.vpW || 0, state.vpH || 0, onResize] }
+            case 'w': { return [state.vpW || 0, onResize] }
+            case 'h': { return [state.vpH || 0, onResize] }
         }
     }, [dimensionHash, onResize, dimension]);
 

@@ -1,5 +1,31 @@
 {
     "presets": [
-        "@babel/preset-env"
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "browsers": "last 2 versions, not ie 11",
+                    "node": "20"
+                },
+                "exclude": [
+                    "@babel/plugin-proposal-optional-chaining",
+                    "transform-destructuring",
+                    "transform-typeof-symbol",
+                    "transform-parameters",
+                    "transform-for-of",
+                    "transform-regenerator",
+                    "transform-object-rest-spread"
+                ]
+            }
+        ]
+    ],
+    "plugins": [
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "helpers": true,
+                "regenerator": false
+            }
+        ]
     ]
 }
