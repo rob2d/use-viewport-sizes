@@ -19,6 +19,7 @@ npm install -D use-viewport-sizes
 - debouncing does not create new handlers or waste re-renders in your component; the results are also pooled from only one resize result.
 - optional hash function to update component subtree only at points you would like to.
 - supports lazy loaded components and SSR out of the box.
+- compatible with React v16 | v17 | v18 | v19
 
 
 ## Usage ##
