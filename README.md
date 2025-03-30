@@ -4,7 +4,19 @@
 ![Github Workflow Status](https://github.com/rob2d/use-viewport-sizes/actions/workflows/node.js.yml/badge.svg)
 [![NPM](https://img.shields.io/npm/l/use-viewport-sizes.svg)](https://github.com/rob2d/use-viewport-sizes/blob/master/LICENSE)
 
-a tiny TS-compatible React hook which allows you to track visible window viewport size in your components w/ an optional debounce, throttle or custom memo function for updates for optimal rendering.
+A lightweight, TypeScript-compatible React hook for tracking viewport sizes in your components. Includes optional debounce, throttle, and custom memoization for optimized rendering.
+
+## Table of Contents
+- [Installation](#installation)
+- [Benefits](#benefits)
+- [Usage](#usage)
+  - [Basic Use-case](#basic-use-case)
+  - [Measure/Update only on one dimension](#measureupdate-only-on-one-dimension)
+  - [With Throttling](#with-throttling)
+  - [With Debouncing](#with-debouncing)
+  - [Only update vpW/vpH passed on specific conditions](#only-update-vpwvph-passed-on-specific-conditions)
+- [Support](#support)
+- [License](#license)
 
 ## Installation ##
 
@@ -13,7 +25,7 @@ npm install -D use-viewport-sizes
 ```
 
 ## Benefits ##
-- extremely lightweight and zero dependencies -- adds **2.04kb** after gzip.
+- extremely lightweight and zero dependencies -- adds **2.38kb** pre gzip, and **1.09kb** after gzip.
 - only one `window.onresize` handler used to subscribe to any changes in an unlimited number of components no matter the use-cases.
 - optional debounce to delay updates until user stops dragging their window for a moment; this can make expensive components with size-dependent calculations run much faster and your app feel smoother.
 - debouncing does not create new handlers or waste re-renders in your component; the results are also pooled from only one resize result.
@@ -125,4 +137,4 @@ Otherwise, if this was useful and you'd like to show your support, no donations 
 
 ## License ##
 
-- Open Source **[MIT license](http://opensource.org/licenses/mit-license.php)**
+Open Source **[MIT license](http://opensource.org/licenses/mit-license.php)**
