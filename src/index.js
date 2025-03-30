@@ -78,14 +78,13 @@ function triggerResizeListener(listener, vpWidth, vpHeight) {
     if(!hasher) {
         switch (options?.dimension) {
             case 'w':
-                hash = `${vpWidth}`;
+                hash = vpWidth;
                 break;
             case 'h':
-                hash = `${vpHeight}`;
+                hash = vpHeight;
                 break;
             default:
-            case 'both':
-                hash = `${vpWidth}_${vpHeight}`;
+                hash = (vpWidth << 16) | vpHeight;
                 break;
         }
     }
