@@ -5,7 +5,7 @@
             {
                 "targets": {
                     "browsers": "last 2 versions, not ie 11",
-                    "node": "20"
+                    "node": "22"
                 },
                 "exclude": [
                     "@babel/plugin-proposal-optional-chaining",
